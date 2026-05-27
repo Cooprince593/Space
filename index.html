@@ -1,111 +1,577 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Autorización Completada</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Discord — Autorización Completada</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      overflow: hidden;
+      background: #000;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
 
-        body {
-            background-color: #09090b;
-            background-image: 
-                radial-gradient(white, rgba(255,255,255,.2) 2px, transparent 4px),
-                radial-gradient(white, rgba(255,255,255,.15) 1px, transparent 30px),
-                radial-gradient(white, rgba(255,255,255,.1) 2px, transparent 40px);
-            background-size: 550px 550px, 350px 350px, 250px 250px;
-            background-position: 0 0, 40px 60px, 130px 270px;
-            min-height: 100vh;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            color: white; overflow: hidden; position: relative;
-        }
+    /* ── Canvas ── */
+    #space-canvas {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
+    }
 
-        /* ROSAS (Borra el fondo negro de la imagen original) */
-        .rose {
-            position: absolute;
-            mix-blend-mode: screen; 
-            pointer-events: none; 
-            user-select: none;
-            opacity: 0.15; 
-            z-index: 1;
-            filter: grayscale(100%);
-        }
+    /* ── Shooting stars ── */
+    .shooting-star {
+      position: fixed;
+      width: 2px;
+      height: 2px;
+      border-radius: 50%;
+      background: white;
+      opacity: 0;
+      pointer-events: none;
+      z-index: 1;
+    }
+    .shooting-star:nth-child(1) { top: 12%; left:  8%; animation: shoot 6s linear 0s   infinite; }
+    .shooting-star:nth-child(2) { top: 38%; left:  4%; animation: shoot 8s linear 2.5s infinite; }
+    .shooting-star:nth-child(3) { top: 62%; left: 18%; animation: shoot 5s linear 4s   infinite; }
+    .shooting-star:nth-child(4) { top:  7%; left: 52%; animation: shoot 7s linear 1s   infinite; }
+    .shooting-star:nth-child(5) { top: 48%; left: 72%; animation: shoot 9s linear 3.5s infinite; }
 
-        /* Posiciones de las rosas de fondo */
-        .rose-bg-1 { bottom: -10%; left: -5%; width: 400px; transform: rotate(-20deg); opacity: 0.08; }
-        .rose-bg-2 { top: -10%; right: -5%; width: 350px; transform: rotate(110deg); opacity: 0.08; }
+    /* ── Rose decorations (fixed corners) ── */
+    .rose-corner {
+      position: fixed;
+      width: 220px;
+      opacity: 0.07;
+      pointer-events: none;
+      z-index: 2;
+    }
+    .rose-tl { top: -40px; right: -40px; transform: rotate(15deg);  }
+    .rose-br { bottom: -40px; left: -40px; transform: rotate(200deg); }
 
-        /* TARJETA */
-        .card {
-            background: rgba(18, 18, 20, 0.7);
-            backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            border-radius: 24px; padding: 40px 30px;
-            width: 100%; max-width: 420px;
-            display: flex; flex-direction: column; align-items: center;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-            position: relative; z-index: 10; overflow: hidden;
-        }
+    /* ── Center wrapper ── */
+    #center {
+      position: relative;
+      z-index: 10;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
 
-        /* Rosas DENTRO de la tarjeta */
-        .rose-card-1 { top: -30px; left: -30px; width: 120px; opacity: 0.2; }
-        .rose-card-2 { bottom: 90px; left: 50%; transform: translateX(-50%); width: 60px; opacity: 0.3; }
+    /* ── Card float ── */
+    #card-wrap {
+      animation: float 7s ease-in-out infinite, fadeInUp 0.85s cubic-bezier(.16,1,.3,1) both;
+      perspective: 1200px;
+      width: min(92vw, 400px);
+      position: relative;
+    }
 
-        .badge { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 6px 16px; border-radius: 20px; font-size: 11px; font-weight: 600; letter-spacing: 1px; color: #a1a1aa; display: flex; align-items: center; gap: 6px; margin-bottom: 30px; z-index: 2;}
-        .profile-ring { width: 100px; height: 100px; border-radius: 50%; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: center; align-items: center; margin-bottom: 25px; position: relative; z-index: 2;}
-        .profile-ring svg { width: 40px; height: 40px; color: #d4d4d8; }
-        .status-dot { position: absolute; bottom: 5px; right: 5px; width: 16px; height: 16px; background-color: #22c55e; border-radius: 50%; border: 3px solid #121214; }
-        h1 { font-size: 22px; font-weight: 700; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; z-index: 2;}
-        h1 svg { width: 24px; height: 24px; }
-        p { color: #a1a1aa; text-align: center; font-size: 14px; line-height: 1.5; margin-bottom: 55px; padding: 0 10px; z-index: 2;}
-        
-        .btn { background-color: #27272a; color: white; border: 1px solid rgba(255,255,255,0.05); width: 100%; padding: 14px; border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px; transition: all 0.2s ease; text-decoration: none; z-index: 2;}
-        .btn:hover { background-color: #3f3f46; transform: translateY(-2px); }
-        .card-footer { margin-top: 20px; font-size: 10px; color: #52525b; letter-spacing: 1px; z-index: 2;}
-        .page-footer { position: absolute; bottom: 20px; font-size: 11px; color: #3f3f46; letter-spacing: 1px; }
-    </style>
+    /* ── Glass card ── */
+    #card {
+      border-radius: 22px;
+      background: rgba(255,255,255,0.055);
+      backdrop-filter: blur(30px) saturate(160%);
+      -webkit-backdrop-filter: blur(30px) saturate(160%);
+      border: 1px solid rgba(255,255,255,0.10);
+      box-shadow: 0 18px 55px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.09);
+      padding: 44px 38px 40px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      overflow: hidden;
+      position: relative;
+      transform-style: preserve-3d;
+      will-change: transform;
+      transition: transform 0.6s cubic-bezier(.03,.98,.52,.99),
+                  box-shadow 0.3s ease;
+    }
+
+    /* Top shimmer */
+    #card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 15%; right: 15%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.28), transparent);
+      border-radius: 999px;
+      pointer-events: none;
+    }
+
+    /* ── Rose corners inside card ── */
+    .card-rose {
+      position: absolute;
+      width: 120px;
+      opacity: 0.18;
+      pointer-events: none;
+    }
+    .card-rose-tl { top: -18px; left: -22px;  transform: rotate(-20deg); }
+    .card-rose-br { bottom: -18px; right: -22px; transform: rotate(160deg); }
+
+    /* ── Badge ── */
+    #badge {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      margin-bottom: 26px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 999px;
+      padding: 6px 16px 6px 11px;
+      position: relative;
+      z-index: 1;
+    }
+    #badge span {
+      color: #d1d5db;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    /* ── Avatar ring ── */
+    #avatar-wrap {
+      position: relative;
+      margin-bottom: 20px;
+      z-index: 1;
+    }
+    #avatar-ring {
+      position: absolute;
+      inset: -5px;
+      border-radius: 50%;
+      background: conic-gradient(from 0deg, #ffffff22, #ffffffaa, #ffffff22);
+      animation: spin 5s linear infinite;
+      filter: blur(0.5px);
+    }
+    #avatar-bg {
+      position: absolute;
+      inset: -2px;
+      border-radius: 50%;
+      background: #080808;
+    }
+    #avatar-img {
+      width: 108px;
+      height: 108px;
+      border-radius: 50%;
+      object-fit: cover;
+      position: relative;
+      z-index: 1;
+      display: block;
+    }
+    #avatar-default {
+      width: 108px;
+      height: 108px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #1a1a1a, #2d2d2d);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      z-index: 1;
+    }
+    #online-dot {
+      position: absolute;
+      bottom: 4px; right: 4px;
+      width: 19px; height: 19px;
+      border-radius: 50%;
+      background: #22c55e;
+      border: 3px solid #080808;
+      z-index: 2;
+    }
+
+    /* ── Text content ── */
+    #username-text {
+      color: rgba(209,213,219,0.7);
+      font-size: 14px;
+      font-weight: 500;
+      margin-bottom: 6px;
+      letter-spacing: 0.03em;
+      position: relative;
+      z-index: 1;
+      display: none;
+    }
+    #title-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+      position: relative;
+      z-index: 1;
+    }
+    #title-row h1 {
+      color: #fff;
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: -0.01em;
+      line-height: 1.2;
+    }
+    #subtitle {
+      color: rgba(156,163,175,0.75);
+      font-size: 13px;
+      text-align: center;
+      margin-bottom: 30px;
+      line-height: 1.6;
+      max-width: 270px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ── Center rose ── */
+    #center-rose {
+      width: 64px;
+      opacity: 0.35;
+      margin-bottom: 24px;
+      filter: drop-shadow(0 2px 8px rgba(255,255,255,0.12));
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ── Divider ── */
+    #divider {
+      width: 100%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+      margin-bottom: 26px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ── Button ── */
+    #go-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      width: 100%;
+      padding: 13px 22px;
+      border-radius: 13px;
+      background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+      color: #e5e7eb;
+      font-size: 14px;
+      font-weight: 700;
+      text-decoration: none;
+      border: 1px solid rgba(255,255,255,0.14);
+      box-shadow: 0 6px 24px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1);
+      transition: all 0.22s ease;
+      letter-spacing: 0.02em;
+      cursor: pointer;
+      position: relative;
+      z-index: 1;
+      font-family: 'Inter', system-ui, sans-serif;
+    }
+    #go-btn:hover {
+      transform: translateY(-2px);
+      background: linear-gradient(135deg, #222 0%, #333 100%);
+      box-shadow: 0 12px 36px rgba(0,0,0,0.65), inset 0 1px 0 rgba(255,255,255,0.14);
+    }
+
+    /* ── Footer sparkle row ── */
+    #sparkle-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 18px;
+      opacity: 0.35;
+      position: relative;
+      z-index: 1;
+    }
+    #sparkle-row span {
+      color: #9ca3af;
+      font-size: 11px;
+      letter-spacing: 0.06em;
+    }
+
+    /* ── Page footer ── */
+    #footer {
+      position: fixed;
+      bottom: 16px;
+      color: rgba(107,114,128,0.4);
+      font-size: 11px;
+      letter-spacing: 0.06em;
+      text-align: center;
+      z-index: 10;
+    }
+
+    /* ── Keyframes ── */
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to   { transform: rotate(360deg); }
+    }
+    @keyframes float {
+      0%,100% { transform: translateY(0px); }
+      50%      { transform: translateY(-10px); }
+    }
+    @keyframes shoot {
+      0%   { transform: translateX(0) translateY(0); opacity: 0; }
+      5%   { opacity: 0.9; }
+      95%  { opacity: 0.6; }
+      100% { transform: translateX(600px) translateY(260px); opacity: 0; }
+    }
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(28px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+  </style>
 </head>
 <body>
 
-    <!-- Rosas de Fondo de la página -->
-    <img src="https://media.discordapp.net/attachments/1502878615841406986/1508989850232160357/rose.png?ex=6a178bcf&is=6a163a4f&hm=d257c10940845ca80f4ecdd1d09336db3a34440bbd5b96c196433aa62ac88b31&=&format=webp&quality=lossless&width=341&height=300" class="rose rose-bg-1" alt="">
-    <img src="https://media.discordapp.net/attachments/1502878615841406986/1508989850232160357/rose.png?ex=6a178bcf&is=6a163a4f&hm=d257c10940845ca80f4ecdd1d09336db3a34440bbd5b96c196433aa62ac88b31&=&format=webp&quality=lossless&width=341&height=300" class="rose rose-bg-2" alt="">
+<!-- Space canvas -->
+<canvas id="space-canvas"></canvas>
 
-    <!-- TARJETA CON EFECTO 3D -->
-    <div class="card" data-tilt data-tilt-max="8" data-tilt-speed="400" data-tilt-glare data-tilt-max-glare="0.15">
-        
-        <!-- Rosas DENTRO de la tarjeta -->
-        <img src="https://media.discordapp.net/attachments/1502878615841406986/1508989850232160357/rose.png?ex=6a178bcf&is=6a163a4f&hm=d257c10940845ca80f4ecdd1d09336db3a34440bbd5b96c196433aa62ac88b31&=&format=webp&quality=lossless&width=341&height=300" class="rose rose-card-1" alt="">
-        <img src="https://media.discordapp.net/attachments/1502878615841406986/1508989850232160357/rose.png?ex=6a178bcf&is=6a163a4f&hm=d257c10940845ca80f4ecdd1d09336db3a34440bbd5b96c196433aa62ac88b31&=&format=webp&quality=lossless&width=341&height=300" class="rose rose-card-2" alt="">
+<!-- Shooting stars -->
+<div class="shooting-star"></div>
+<div class="shooting-star"></div>
+<div class="shooting-star"></div>
+<div class="shooting-star"></div>
+<div class="shooting-star"></div>
 
-        <div class="badge">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
-            DISCORD OAUTH2
+<!-- Corner roses (screen) -->
+<img class="rose-corner rose-tl" src="https://media.discordapp.net/attachments/1502878615841406986/1508989850232160357/rose.png?ex=6a178bcf&is=6a163a4f&hm=d257c10940845ca80f4ecdd1d09336db3a34440bbd5b96c196433aa62ac88b31&=&format=webp&quality=lossless&width=341&height=300" alt="" />
+<img class="rose-corner rose-br" src="https://media.discordapp.net/attachments/1502878615841406986/1508989850232160357/rose.png?ex=6a178bcf&is=6a163a4f&hm=d257c10940845ca80f4ecdd1d09336db3a34440bbd5b96c196433aa62ac88b31&=&format=webp&quality=lossless&width=341&height=300" alt="" />
+
+<!-- Main content -->
+<div id="center">
+  <div id="card-wrap">
+
+    <!-- Glass card -->
+    <div id="card">
+
+      <!-- Card corner roses -->
+      <img class="card-rose card-rose-tl" src="https://media.discordapp.net/attachments/1502878615841406986/1508989850232160357/rose.png?ex=6a178bcf&is=6a163a4f&hm=d257c10940845ca80f4ecdd1d09336db3a34440bbd5b96c196433aa62ac88b31&=&format=webp&quality=lossless&width=341&height=300" alt="" />
+      <img class="card-rose card-rose-br" src="https://media.discordapp.net/attachments/1502878615841406986/1508989850232160357/rose.png?ex=6a178bcf&is=6a163a4f&hm=d257c10940845ca80f4ecdd1d09336db3a34440bbd5b96c196433aa62ac88b31&=&format=webp&quality=lossless&width=341&height=300" alt="" />
+
+      <!-- Badge -->
+      <div id="badge">
+        <!-- Shield Check icon (Lucide SVG) -->
+        <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
+             fill="none" stroke="#d1d5db" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          <polyline points="9 12 11 14 15 10"/>
+        </svg>
+        <span>Discord OAuth2</span>
+      </div>
+
+      <!-- Avatar -->
+      <div id="avatar-wrap">
+        <div id="avatar-ring"></div>
+        <div id="avatar-bg"></div>
+        <!-- Default avatar (shown if no URL param) -->
+        <div id="avatar-default">
+          <svg xmlns="http://www.w3.org/2000/svg" width="42" height="42" viewBox="0 0 24 24"
+               fill="none" stroke="#9ca3af" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z"/>
+            <path d="m9 12 2 2 4-4"/>
+          </svg>
         </div>
+        <!-- Dynamic avatar (shown when URL has params) -->
+        <img id="avatar-img" src="" alt="User" style="display:none;" 
+             onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'" />
+        <div id="online-dot"></div>
+      </div>
 
-        <div class="profile-ring">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
-            <div class="status-dot"></div>
-        </div>
+      <!-- Username (shown when URL has params) -->
+      <p id="username-text"></p>
 
-        <h1>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><polyline points="9 12 11 14 15 10"></polyline></svg>
-            Autorización Completada
-        </h1>
-        <p>Tu cuenta de Discord ha sido verificada exitosamente. Ya puedes acceder al servidor.</p>
+      <!-- Title -->
+      <div id="title-row">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+             fill="none" stroke="#e5e7eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z"/>
+          <path d="m9 12 2 2 4-4"/>
+        </svg>
+        <h1>Autorización Completada</h1>
+      </div>
 
-        <a href="#" class="btn">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
-            Ir al Servidor de Discord
-        </a>
+      <!-- Subtitle -->
+      <p id="subtitle">
+        Tu cuenta de Discord ha sido verificada exitosamente. Ya puedes acceder al servidor.
+      </p>
 
-        <div class="card-footer">✧ SECURE · VERIFIED · OAUTH2 ✧</div>
-    </div>
+      <!-- Center rose -->
+      <img id="center-rose"
+           src="https://media.discordapp.net/attachments/1502878615841406986/1508989850232160357/rose.png?ex=6a178bcf&is=6a163a4f&hm=d257c10940845ca80f4ecdd1d09336db3a34440bbd5b96c196433aa62ac88b31&=&format=webp&quality=lossless&width=341&height=300"
+           alt="Rosa" />
 
-    <div class="page-footer">DISCORD AUTHORIZATION · SECURE OAUTH2</div>
+      <!-- Divider -->
+      <div id="divider"></div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.8.1/vanilla-tilt.min.js"></script>
+      <!-- Button -->
+      <a id="go-btn"
+         href="https://discord.com/channels/1501782798124449924/1501782953821339688"
+         target="_blank" rel="noopener noreferrer">
+        <!-- ExternalLink icon -->
+        <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
+             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+        </svg>
+        Ir al Servidor de Discord
+      </a>
+
+      <!-- Sparkle row -->
+      <div id="sparkle-row">
+        <!-- Sparkles icon -->
+        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24"
+             fill="none" stroke="#9ca3af" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/>
+          <path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/>
+        </svg>
+        <span>SECURE · VERIFIED · OAUTH2</span>
+        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24"
+             fill="none" stroke="#9ca3af" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/>
+          <path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/>
+        </svg>
+      </div>
+
+    </div><!-- /card -->
+  </div><!-- /card-wrap -->
+
+  <p id="footer">DISCORD AUTHORIZATION · SECURE OAUTH2</p>
+</div>
+
+<script>
+// ─── Read URL params ──────────────────────────────────────────────────────────
+(function () {
+  const p = new URLSearchParams(window.location.search);
+  const avatarParam    = p.get('avatar');
+  const usernameParam  = p.get('username');
+  const userIdParam    = p.get('user_id') || p.get('id');
+  const avatarHash     = p.get('avatar_hash');
+
+  let avatarUrl = null;
+  if (avatarParam)              avatarUrl = decodeURIComponent(avatarParam);
+  else if (userIdParam && avatarHash) {
+    const ext = avatarHash.startsWith('a_') ? 'gif' : 'png';
+    avatarUrl = `https://cdn.discordapp.com/avatars/${userIdParam}/${avatarHash}.${ext}?size=256`;
+  }
+
+  if (avatarUrl) {
+    const img = document.getElementById('avatar-img');
+    const def = document.getElementById('avatar-default');
+    img.src = avatarUrl;
+    img.style.display = 'block';
+    def.style.display = 'none';
+  }
+
+  if (usernameParam) {
+    const el = document.getElementById('username-text');
+    el.textContent = '@' + decodeURIComponent(usernameParam);
+    el.style.display = 'block';
+  }
+})();
+
+// ─── Space canvas ─────────────────────────────────────────────────────────────
+(function () {
+  const canvas = document.getElementById('space-canvas');
+  const ctx    = canvas.getContext('2d');
+  const COLORS = ['#ffffff','#d1d5db','#9ca3af','#6b7280','#4b5563','#e5e7eb'];
+  const particles = [];
+  let animId;
+
+  function resize() {
+    canvas.width  = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  for (let i = 0; i < 200; i++) {
+    particles.push({
+      x:     Math.random() * canvas.width,
+      y:     Math.random() * canvas.height,
+      r:     Math.random() * 1.6 + 0.2,
+      dx:    (Math.random() - 0.5) * 0.12,
+      dy:    (Math.random() - 0.5) * 0.12,
+      alpha: Math.random() * 0.6 + 0.2,
+      color: COLORS[Math.floor(Math.random() * COLORS.length)],
+    });
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Background gradient
+    const bg = ctx.createLinearGradient(0, 0, canvas.width * 0.6, canvas.height);
+    bg.addColorStop(0,   '#000000');
+    bg.addColorStop(0.5, '#0d0d0d');
+    bg.addColorStop(1,   '#111111');
+    ctx.fillStyle = bg;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Nebula blobs
+    [
+      { x: canvas.width*0.15, y: canvas.height*0.2,  r: 280, c: 'rgba(100,100,110,0.055)' },
+      { x: canvas.width*0.82, y: canvas.height*0.6,  r: 220, c: 'rgba(80,80,90,0.045)'    },
+      { x: canvas.width*0.5,  y: canvas.height*0.85, r: 190, c: 'rgba(60,60,70,0.04)'     },
+    ].forEach(b => {
+      const g = ctx.createRadialGradient(b.x, b.y, 0, b.x, b.y, b.r);
+      g.addColorStop(0, b.c);
+      g.addColorStop(1, 'transparent');
+      ctx.fillStyle = g;
+      ctx.beginPath();
+      ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2);
+      ctx.fill();
+    });
+
+    // Particles
+    particles.forEach(p => {
+      ctx.globalAlpha = p.alpha;
+      ctx.fillStyle   = p.color;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fill();
+      p.x += p.dx; p.y += p.dy;
+      if (p.x < 0) p.x = canvas.width;
+      if (p.x > canvas.width) p.x = 0;
+      if (p.y < 0) p.y = canvas.height;
+      if (p.y > canvas.height) p.y = 0;
+    });
+
+    ctx.globalAlpha = 1;
+    animId = requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+// ─── 3D Tilt ──────────────────────────────────────────────────────────────────
+(function () {
+  const wrap = document.getElementById('card-wrap');
+  const card = document.getElementById('card');
+  const MAX  = 8;
+  let raf;
+
+  wrap.addEventListener('mousemove', e => {
+    const rect = wrap.getBoundingClientRect();
+    const cx   = rect.left + rect.width  / 2;
+    const cy   = rect.top  + rect.height / 2;
+    const rx   = (-(e.clientY - cy) / (rect.height / 2)) * MAX;
+    const ry   = ( (e.clientX - cx) / (rect.width  / 2)) * MAX;
+    cancelAnimationFrame(raf);
+    raf = requestAnimationFrame(() => {
+      card.style.transform    = `rotateX(${rx}deg) rotateY(${ry}deg) scale(1.02)`;
+      card.style.transition   = 'transform 0.12s ease-out, box-shadow 0.3s ease';
+      card.style.boxShadow    = '0 28px 70px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.14)';
+    });
+  });
+
+  wrap.addEventListener('mouseleave', () => {
+    cancelAnimationFrame(raf);
+    card.style.transform  = 'rotateX(0deg) rotateY(0deg) scale(1)';
+    card.style.transition = 'transform 0.6s cubic-bezier(.03,.98,.52,.99), box-shadow 0.3s ease';
+    card.style.boxShadow  = '0 18px 55px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.09)';
+  });
+})();
+</script>
 </body>
 </html>
