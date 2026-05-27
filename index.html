@@ -22,13 +22,13 @@
             color: white; overflow: hidden; position: relative;
         }
 
-        /* MAGIA PARA LAS ROSAS (Borra el fondo negro) */
+        /* ROSAS (Borra el fondo negro de la imagen original) */
         .rose {
             position: absolute;
-            mix-blend-mode: screen; /* Esto quita el color negro de la imagen */
-            pointer-events: none; /* Para que no molesten al hacer clic */
+            mix-blend-mode: screen; 
+            pointer-events: none; 
             user-select: none;
-            opacity: 0.15; /* Transparencia */
+            opacity: 0.15; 
             z-index: 1;
             filter: grayscale(100%);
         }
@@ -73,6 +73,7 @@
     <img src="https://media.discordapp.net/attachments/1502878615841406986/1508989850232160357/rose.png?ex=6a178bcf&is=6a163a4f&hm=d257c10940845ca80f4ecdd1d09336db3a34440bbd5b96c196433aa62ac88b31&=&format=webp&quality=lossless&width=341&height=300" class="rose rose-bg-1" alt="">
     <img src="https://media.discordapp.net/attachments/1502878615841406986/1508989850232160357/rose.png?ex=6a178bcf&is=6a163a4f&hm=d257c10940845ca80f4ecdd1d09336db3a34440bbd5b96c196433aa62ac88b31&=&format=webp&quality=lossless&width=341&height=300" class="rose rose-bg-2" alt="">
 
+    <!-- TARJETA CON EFECTO 3D -->
     <div class="card" data-tilt data-tilt-max="8" data-tilt-speed="400" data-tilt-glare data-tilt-max-glare="0.15">
         
         <!-- Rosas DENTRO de la tarjeta -->
