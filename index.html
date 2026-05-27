@@ -1,12 +1,220 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Discord — Autorización Completada</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Autorización Completada</title>
+    
+    <!-- Importar fuente de Google Fonts (Inter) -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* RESET BÁSICO */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* FONDO ESTRELLADO (Simulando el espacio) */
+        body {
+            background-color: #09090b; /* Color base muy oscuro */
+            background-image: 
+                radial-gradient(white, rgba(255,255,255,.2) 2px, transparent 4px),
+                radial-gradient(white, rgba(255,255,255,.15) 1px, transparent 30px),
+                radial-gradient(white, rgba(255,255,255,.1) 2px, transparent 40px);
+            background-size: 550px 550px, 350px 350px, 250px 250px;
+            background-position: 0 0, 40px 60px, 130px 270px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            overflow: hidden;
+        }
+
+        /* LA TARJETA PRINCIPAL */
+        .card {
+            background: rgba(18, 18, 20, 0.65); /* Fondo oscuro semi-transparente */
+            backdrop-filter: blur(16px); /* Efecto cristal/blur */
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.05); /* Borde sutil */
+            border-radius: 24px;
+            padding: 40px 30px;
+            width: 100%;
+            max-width: 420px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); /* Sombra 3D */
+            position: relative;
+            z-index: 10;
+        }
+
+        /* Etiqueta superior (Discord OAuth2) */
+        .badge {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            color: #a1a1aa;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 30px;
+            text-transform: uppercase;
+        }
+
+        /* Círculo central (Foto de perfil) */
+        .profile-ring {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 25px;
+            position: relative;
+        }
+
+        .profile-ring svg {
+            width: 40px;
+            height: 40px;
+            color: #d4d4d8;
+        }
+
+        /* Puntito verde de "Conectado" */
+        .status-dot {
+            position: absolute;
+            bottom: 5px;
+            right: 5px;
+            width: 16px;
+            height: 16px;
+            background-color: #22c55e;
+            border-radius: 50%;
+            border: 3px solid #121214; /* Borde del color de la tarjeta para separar */
+        }
+
+        /* Textos */
+        h1 {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        h1 svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        p {
+            color: #a1a1aa;
+            text-align: center;
+            font-size: 14px;
+            line-height: 1.5;
+            margin-bottom: 35px;
+            padding: 0 10px;
+        }
+
+        /* Botón */
+        .btn {
+            background-color: #27272a;
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            width: 100%;
+            padding: 14px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+
+        .btn:hover {
+            background-color: #3f3f46;
+            transform: translateY(-2px);
+        }
+
+        /* Footer dentro de la tarjeta */
+        .card-footer {
+            margin-top: 20px;
+            font-size: 10px;
+            color: #52525b;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        /* Footer de la página (abajo del todo) */
+        .page-footer {
+            position: absolute;
+            bottom: 20px;
+            font-size: 11px;
+            color: #3f3f46;
+            letter-spacing: 1px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- TARJETA CON EFECTO 3D (data-tilt lo activa) -->
+    <div class="card" data-tilt data-tilt-max="10" data-tilt-speed="400" data-tilt-glare data-tilt-max-glare="0.2">
+        
+        <!-- Etiqueta superior -->
+        <div class="badge">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+            DISCORD OAUTH2
+        </div>
+
+        <!-- Círculo central con punto verde -->
+        <div class="profile-ring">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+            <div class="status-dot"></div>
+        </div>
+
+        <!-- Título y Texto -->
+        <h1>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><polyline points="9 12 11 14 15 10"></polyline></svg>
+            Autorización Completada
+        </h1>
+        <p>Tu cuenta de Discord ha sido verificada exitosamente. Ya puedes acceder al servidor.</p>
+
+        <!-- Botón -->
+        <a href="#" class="btn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+            Ir al Servidor de Discord
+        </a>
+
+        <!-- Textito inferior de la tarjeta -->
+        <div class="card-footer">
+            ✧ SECURE · VERIFIED · OAUTH2 ✧
+        </div>
+    </div>
+
+    <!-- Textito inferior de la página -->
+    <div class="page-footer">
+        DISCORD AUTHORIZATION · SECURE OAUTH2
+    </div>
+
+    <!-- SCRIPT MÁGICO PARA EL EFECTO 3D (TILT) -->
+    <!-- Esto importa la librería Vanilla-tilt directamente desde internet, sin descargar nada -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.8.1/vanilla-tilt.min.js"></script>
+    
+</body>
 </html>
