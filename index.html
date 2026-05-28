@@ -300,6 +300,33 @@
       letter-spacing: 0.08em;
     }
 
+    /* ── Botón de Música ── */
+    #music-toggle {
+      position: fixed;
+      top: 24px;
+      right: 24px;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      z-index: 100;
+      backdrop-filter: blur(10px);
+      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+    }
+    #music-toggle:hover {
+      transform: translateY(-3px);
+      background: rgba(255, 255, 255, 0.15);
+      box-shadow: 0 12px 32px rgba(0,0,0,0.5);
+      border-color: rgba(255, 255, 255, 0.3);
+    }
+
     /* ── Footer de la página ── */
     #footer {
       position: fixed;
@@ -333,6 +360,22 @@
   </style>
 </head>
 <body>
+
+  <audio id="bg-music" loop>
+    <source src="WUF.mp3" type="audio/mpeg">
+  </audio>
+
+  <button id="music-toggle" aria-label="Reproducir música">
+    <svg id="icon-muted" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+      <line x1="23" y1="9" x2="17" y2="15"></line>
+      <line x1="17" y1="9" x2="23" y2="15"></line>
+    </svg>
+    <svg id="icon-playing" style="display: none;" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+      <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+    </svg>
+  </button>
 
   <canvas id="space-canvas"></canvas>
 
@@ -415,6 +458,31 @@
   </div>
 
   <script>
+    // ─── Lógica para la Música de Fondo ───
+    (function () {
+      const bgMusic = document.getElementById('bg-music');
+      const musicBtn = document.getElementById('music-toggle');
+      const iconMuted = document.getElementById('icon-muted');
+      const iconPlaying = document.getElementById('icon-playing');
+      let isPlaying = false;
+
+      // Ajusta el volumen si WUF.mp3 suena muy fuerte (0.0 a 1.0)
+      bgMusic.volume = 0.5;
+
+      musicBtn.addEventListener('click', () => {
+        if (isPlaying) {
+          bgMusic.pause();
+          iconMuted.style.display = 'block';
+          iconPlaying.style.display = 'none';
+        } else {
+          bgMusic.play();
+          iconMuted.style.display = 'none';
+          iconPlaying.style.display = 'block';
+        }
+        isPlaying = !isPlaying;
+      });
+    })();
+
     // ─── Lógica para leer parámetros de URL ───
     (function () {
       const p = new URLSearchParams(window.location.search);
