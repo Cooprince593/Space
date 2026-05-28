@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Discord — Autorización Completada</title>
   
+  <link rel="icon" type="image/x-icon" href="white-flower.ico" />
+  
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -87,10 +89,10 @@
     /* ── Tarjeta Estilo Aero Glass ── */
     #card {
       border-radius: 24px;
-      background: rgba(255, 255, 255, 0.07); /* Ligeramente más transparente */
-      backdrop-filter: blur(40px) saturate(180%); /* Desenfoque más profundo */
+      background: rgba(255, 255, 255, 0.07);
+      backdrop-filter: blur(40px) saturate(180%);
       -webkit-backdrop-filter: blur(40px) saturate(180%);
-      border: 1px solid rgba(255, 255, 255, 0.15); /* Borde más definido */
+      border: 1px solid rgba(255, 255, 255, 0.15);
       box-shadow: 0 24px 60px rgba(0,0,0,0.6), inset 0 1px 1px rgba(255, 255, 255, 0.15);
       padding: 44px 38px 40px;
       display: flex;
@@ -190,7 +192,7 @@
       bottom: 4px; right: 4px;
       width: 20px; height: 20px;
       border-radius: 50%;
-      background: #23a559; /* Verde oficial de Discord */
+      background: #23a559;
       border: 3px solid #080808;
       z-index: 2;
     }
@@ -517,7 +519,7 @@
     (function () {
       const wrap = document.getElementById('card-wrap');
       const card = document.getElementById('card');
-      const MAX  = 12; // Inclinación ligeramente aumentada para un mejor efecto
+      const MAX  = 12;
       let raf;
 
       wrap.addEventListener('mousemove', e => {
