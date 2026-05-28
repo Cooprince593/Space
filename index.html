@@ -304,7 +304,7 @@
     #music-container {
       position: fixed;
       top: 24px;
-      left: 24px; /* Ubicado a la izquierda */
+      left: 24px; /* Ubicado fijamente a la izquierda */
       display: flex;
       align-items: center;
       background: rgba(255, 255, 255, 0.06);
@@ -355,16 +355,16 @@
       margin: 0;
     }
 
-    /* Despliegue al pasar el cursor (Hover) -> Sale hacia la derecha */
+    /* Despliegue al pasar el cursor (Hover) -> Se expande hacia la DERECHA */
     #music-container:hover #volume-slider {
       width: 85px;
       opacity: 1;
       pointer-events: auto;
-      margin-left: 10px; /* Separación estética a la derecha del botón */
+      margin-left: 10px; /* Separación a la derecha del botón */
       margin-right: 6px;
     }
 
-    /* Estilos del deslizador (Webkit / Firefox) */
+    /* Estilos del deslizador */
     #volume-slider::-webkit-slider-thumb {
       -webkit-appearance: none;
       appearance: none;
@@ -405,7 +405,7 @@
       z-index: 10;
     }
 
-    /* ── Animaciones (Keyframes) ── */
+    /* ── Animaciones ── */
     @keyframes spin {
       from { transform: rotate(0deg); }
       to   { transform: rotate(360deg); }
@@ -529,20 +529,20 @@
   </div>
 
   <script>
-    // ─── Control Inteligente de Música y Autoplay Activado ───
+    // ─── Control de Audio Totalmente Sincronizado ───
     (function () {
       const bgMusic = document.getElementById('bg-music');
       const musicBtn = document.getElementById('music-toggle');
       const volumeSlider = document.getElementById('volume-slider');
       const iconMuted = document.getElementById('icon-muted');
       const iconPlaying = document.getElementById('icon-playing');
-      let isPlaying = true; // Empieza activo en el sistema
 
-      // Ajustar volumen inicial con la barra (0.5 = 50%)
+      // Configurar volumen inicial (0.5)
       bgMusic.volume = volumeSlider.value;
 
+      // Función que actualiza la interfaz basándose estrictamente en la realidad de la etiqueta <audio>
       function updateIcons() {
-        if (isPlaying && bgMusic.volume > 0) {
+        if (!bgMusic.paused && bgMusic.volume > 0) {
           iconMuted.style.display = 'none';
           iconPlaying.style.display = 'block';
         } else {
@@ -551,38 +551,44 @@
         }
       }
 
-      // Ejecutar intento de play directo al cargar
+      // Escuchamos los eventos del propio reproductor de audio para evitar desincronizaciones
+      bgMusic.addEventListener('play', updateIcons);
+      bgMusic.addEventListener('pause', updateIcons);
+      bgMusic.addEventListener('volumechange', updateIcons);
+
+      // Intento directo al cargar (Por si el navegador lo permite en casos raros)
       bgMusic.play().catch(() => {
-        console.log("Autoplay bloqueado temporalmente por restricciones del navegador.");
+        updateIcons(); // Si se bloquea, fuerza el icono de pausa/muteado de forma segura
       });
 
-      // Bypass del navegador: En cuanto toquen la página por primera vez, suena solo
-      document.addEventListener('click', function unlockAudio() {
-        if (isPlaying && bgMusic.paused) {
-          bgMusic.play().catch(err => console.log("Error de audio:", err));
+      // Desbloqueador Inteligente: Al hacer CUALQUIER primer clic o pulsar una tecla en la página, suena al instante
+      function unlockAudio() {
+        if (bgMusic.paused) {
+          bgMusic.play().catch(err => console.log("Autoplay bloqueado:", err));
         }
         document.removeEventListener('click', unlockAudio);
-      }, { once: true });
+        document.removeEventListener('keydown', unlockAudio);
+      }
+      document.addEventListener('click', unlockAudio);
+      document.addEventListener('keydown', unlockAudio);
 
-      // Click manual en el botón de reproducción
+      // Clic directo sobre el botón multimedia
       musicBtn.addEventListener('click', (e) => {
-        e.stopPropagation(); // Evita colisiones con el listener global del body
-        if (isPlaying) {
+        e.stopPropagation(); // Evita interferencias con el desbloqueador general
+        if (!bgMusic.paused) {
           bgMusic.pause();
-          isPlaying = false;
         } else {
           bgMusic.play().catch(err => console.log(err));
-          isPlaying = true;
         }
-        updateIcons();
       });
 
-      // Control de volumen deslizable
+      // Control manual del deslizador de volumen
       volumeSlider.addEventListener('input', (e) => {
-        const volumeValue = parseFloat(e.target.value);
-        bgMusic.volume = volumeValue;
-        updateIcons();
+        bgMusic.volume = parseFloat(e.target.value);
       });
+
+      // Ejecución inicial de iconos al cargar
+      updateIcons();
     })();
 
     // ─── Lógica de Parámetros de la URL (Discord Info) ───
@@ -616,7 +622,7 @@
       }
     })();
 
-    // ─── Renderizado e Inteligencia del Canvas (Estrellas) ───
+    // ─── Fondo espacial animado (Canvas) ───
     (function () {
       const canvas = document.getElementById('space-canvas');
       const ctx    = canvas.getContext('2d');
@@ -645,7 +651,6 @@
       function draw() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        // Degradado sutil galáctico oscuro
         const bg = ctx.createLinearGradient(0, 0, canvas.width * 0.6, canvas.height);
         bg.addColorStop(0,   '#000000');
         bg.addColorStop(0.5, '#0a0a0a');
@@ -653,7 +658,6 @@
         ctx.fillStyle = bg;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        // Nebulosas abstractas
         [
           { x: canvas.width*0.15, y: canvas.height*0.2,  r: 280, c: 'rgba(100,100,110,0.05)' },
           { x: canvas.width*0.82, y: canvas.height*0.6,  r: 220, c: 'rgba(80,80,90,0.04)'    },
@@ -668,7 +672,6 @@
           ctx.fill();
         });
 
-        // Dibujar partículas espaciales
         particles.forEach(p => {
           ctx.globalAlpha = p.alpha;
           ctx.fillStyle   = p.color;
@@ -688,7 +691,7 @@
       draw();
     })();
 
-    // ─── Efecto 3D Dinámico (Tilt) en la Tarjeta ───
+    // ─── Efecto 3D (Tilt) interactivo ───
     (function () {
       const wrap = document.getElementById('card-wrap');
       const card = document.getElementById('card');
