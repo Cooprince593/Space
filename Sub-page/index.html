@@ -175,6 +175,14 @@
         padding: 34px 24px;
         gap: 24px;
       }
+      .card-left {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+      }
+      #profile-info {
+        align-items: center;
+      }
       .card-right {
         border-left: none !important;
         padding-left: 0 !important;
@@ -204,62 +212,195 @@
     /* ── Columnas de la Tarjeta ── */
     .card-left {
       display: flex;
-      flex-direction: column;
+      flex-direction: row;
       align-items: center;
+      text-align: left;
+      gap: 18px;
       position: relative;
       z-index: 1;
+      min-width: 260px;
+    }
+
+    #avatar-column {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 18px;
+      width: 100%;
+    }
+
+    #profile-info {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 4px;
     }
 
     #profile-name {
-      margin-top: 16px;
-      color: rgba(255,255,255,0.9);
-      font-size: 18px;
-      font-weight: 700;
+      margin: 0;
+      color: rgba(255,255,255,0.95);
+      font-size: 32px;
+      font-weight: 800;
       letter-spacing: 0.02em;
+      white-space: nowrap;
+    }
+    .profile-role {
+      margin: 0;
+      color: rgba(209,213,219,0.78);
+      font-size: 13px;
+      letter-spacing: 0.04em;
+      line-height: 1.5;
     }
 
     .card-right {
       display: flex;
       flex-direction: column;
-      align-items: flex-start;
-      justify-content: center;
+      align-items: center;
+      justify-content: flex-start;
       flex: 1;
+      min-width: 0;
       position: relative;
       z-index: 1;
-      border-left: 1px solid rgba(255, 255, 255, 0.1);
-      padding-left: 40px;
+      padding-left: 24px;
+      padding-right: 8px;
+      padding-top: 16px;
+    }
+
+    .card-right::before {
+      content: '';
+      position: absolute;
+      top: 12%;
+      bottom: 12%;
+      left: 6px;
+      width: 1px;
+      border-radius: 999px;
+      background: linear-gradient(180deg, transparent, rgba(255,255,255,0.25), transparent);
+    }
+
+    #discord-activity {
+      margin-top: 16px;
+      text-align: center;
+      color: rgba(209,213,219,0.8);
+      font-size: 13px;
+      line-height: 1.4;
+      letter-spacing: 0.01em;
+    }
+
+    #discord-activity .status-title {
+      margin-bottom: 6px;
+      color: rgba(255,255,255,0.9);
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    #discord-activity .status-user,
+    #discord-activity .status-id {
+      margin: 0;
+    }
+
+    #discord-connect {
+      margin-top: 10px;
+      padding: 10px 16px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.16);
+      background: rgba(255,255,255,0.08);
+      color: #fff;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      backdrop-filter: blur(10px);
+    }
+
+    #discord-connect:hover {
+      background: rgba(255,255,255,0.16);
+      transform: translateY(-1px);
+    }
+
+    #discord-connect:active {
+      transform: translateY(0);
+    }
+
+    .status-note {
+      margin: 10px 0 0;
+      color: rgba(209,213,219,0.72);
+      font-size: 12px;
+      text-align: center;
     }
 
     #connections-row {
       display: flex;
-      justify-content: flex-end;
-      flex-wrap: wrap;
-      gap: 10px;
+      justify-content: center;
+      flex-wrap: nowrap;
+      gap: 18px;
       width: 100%;
-      max-width: 260px;
-      margin-bottom: 24px;
+      max-width: 320px;
+      margin-top: auto; /* empuja los botones hacia abajo */
+      margin-bottom: 18px;
     }
 
+    /* Botones de conexión: cuadrados con esquinas redondeadas */
     .connection-box {
       display: flex;
       align-items: center;
       justify-content: center;
-      width: 44px;
-      height: 44px;
-      background: rgba(255, 255, 255, 0.04);
+      width: 56px;
+      height: 56px;
+      background: rgba(255, 255, 255, 0.06);
       border: 1px solid rgba(255, 255, 255, 0.12);
       border-radius: 12px;
-      color: rgba(255, 255, 255, 0.8);
-      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+      color: rgba(255, 255, 255, 0.92);
+      transition: all 0.28s cubic-bezier(0.25, 0.8, 0.25, 1);
       text-decoration: none;
-      backdrop-filter: blur(10px);
       position: relative;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.35);
     }
+
+    /* Tira informativa compacta similar a la ordenación solicitada */
+    .info-strip {
+      width: 100%;
+      display: none; /* oculto por defecto; se mostrará al conectar Discord */
+      gap: 14px;
+      padding: 14px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 18px;
+      align-items: center;
+      justify-content: space-between;
+      margin: 18px 0 6px;
+      backdrop-filter: blur(6px);
+    }
+    .info-strip.visible { display: flex }
+
+    .mini-card {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      min-width: 0;
+    }
+
+    .mini-card .mini-avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 10px;
+      overflow: hidden;
+      flex-shrink: 0;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.35);
+    }
+
+    .mini-card .mini-avatar img { width: 100%; height: 100%; object-fit: cover; display:block }
+
+    .mini-card .mini-info {
+      display:flex;flex-direction:column;gap:4px;min-width:0;
+    }
+
+    .mini-title { color: rgba(255,255,255,0.92); font-weight:700; font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis }
+    .mini-sub { color: rgba(209,213,219,0.72); font-size:12px }
 
     .connection-box::after {
       content: attr(data-tooltip);
       position: absolute;
-      bottom: calc(100% + 8px);
+      top: calc(100% + 8px);
       left: 50%;
       transform: translateX(-50%) scale(0.95);
       color: #fff;
@@ -281,11 +422,10 @@
     }
 
     .connection-box:hover {
-      background: rgba(255, 255, 255, 0.12);
-      border-color: rgba(255, 255, 255, 0.3);
+      background: rgba(255, 255, 255, 0.08);
       color: #fff;
       transform: translateY(-3px);
-      box-shadow: 0 10px 20px rgba(0,0,0,0.4);
+      box-shadow: 0 10px 20px rgba(0,0,0,0.15);
     }
 
     .connection-box svg {
@@ -334,32 +474,22 @@
       z-index: 2;
     }
 
-    /* ── Frases / Quotes ── */
-    #quotes-container {
-      min-height: 90px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 24px;
-      width: 100%;
-    }
-
-    #quote-text {
-      color: rgba(209,213,219,0.9);
-      font-size: 15px;
-      font-style: italic;
-      line-height: 1.6;
-      text-align: center;
-      transition: opacity 0.8s ease-in-out;
-      opacity: 1; /* Comienza visible */
-    }
-
     /* ── Divisor ── */
     #divider {
-      width: 100%;
+      width: 80%;
+      max-width: 300px;
       height: 1px;
       background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-      margin-bottom: 26px;
+      margin: 0 auto 24px;
+    }
+
+    .section-title {
+      color: rgba(255,255,255,0.85);
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.25em;
+      margin-bottom: 14px;
+      opacity: 0.9;
     }
 
     /* ── Botón Portafolio ── */
@@ -537,22 +667,31 @@
         <img class="card-rose card-rose-br" src="https://media.discordapp.net/attachments/1502878615841406986/1508989850232160357/rose.png" alt="" />
 
         <div class="card-left">
-          <div id="avatar-wrap">
-            <div id="avatar-ring"></div>
-            <div id="avatar-bg"></div>
-            
-            <img id="avatar-img" src="https://cdn.discordapp.com/embed/avatars/1.png" alt="Mi foto de perfil" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'" />
-            <div id="online-dot"></div>
+          <div id="avatar-column">
+            <div id="avatar-wrap">
+              <div id="avatar-ring"></div>
+              <div id="avatar-bg"></div>
+              
+              <img id="avatar-img" src="https://cdn.discordapp.com/embed/avatars/1.png" alt="Mi foto de perfil" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'" />
+              <div id="online-dot"></div>
+            </div>
+            <div id="profile-info">
+              <p id="profile-name">Prince</p>
+              <p class="profile-role">Jugador · Creador · Perfil activo</p>
+            </div>
+            <div id="discord-activity">
+              <p class="status-title">Discord</p>
+              <button id="discord-connect">Conectar con Discord</button>
+              <p class="status-note">Presiona para sincronizar tu perfil y actividad desde Discord.</p>
+            </div>
           </div>
-          <p id="profile-name">Prince</p>
         </div>
 
         <div class="card-right">
-          <div id="quotes-container">
-            <p id="quote-text">"La creatividad es la inteligencia divirtiéndose."</p>
-          </div>
-
+          <p class="section-title">Conexiones</p>
           <div id="divider"></div>
+
+          <div class="info-strip" id="discord-strip" aria-hidden="true"><!-- visible only after Discord connect --></div>
 
           <div id="connections-row">
             <a class="connection-box" href="#" target="_blank" title="Discord" data-tooltip="Discord">
@@ -584,35 +723,6 @@
   </div>
 
   <script>
-    // ─── Control de las Frases (Fade in / Fade out) ───
-    (function () {
-      const quotes = [
-        "La creatividad es la inteligencia divirtiéndose.",
-        "El éxito es la suma de pequeños esfuerzos repetidos día tras día.",
-        "No cuentes los días, haz que los días cuenten.",
-        "La única forma de hacer un gran trabajo es amar lo que haces.",
-        "El futuro pertenece a quienes creen en la belleza de sus sueños."
-      ];
-      
-      let currentIndex = 0;
-      const quoteElement = document.getElementById('quote-text');
-      
-      // Cambia la frase cada 5 segundos
-      setInterval(() => {
-        // Desvanecer texto
-        quoteElement.style.opacity = '0';
-        
-        // Esperar a que termine la transición (0.8s) para cambiar el texto
-        setTimeout(() => {
-          currentIndex = (currentIndex + 1) % quotes.length;
-          quoteElement.textContent = `"${quotes[currentIndex]}"`;
-          // Aparecer texto
-          quoteElement.style.opacity = '1';
-        }, 800); 
-        
-      }, 5000);
-    })();
-
     // ─── Control de Audio Inteligente con Pantalla de Entrada ───
     (function () {
       const bgMusic = document.getElementById('bg-music');
@@ -658,6 +768,28 @@
       });
 
       updateIcons();
+    })();
+
+    // ─── Botón de conexión a Discord ───
+    (function () {
+      const discordConnect = document.getElementById('discord-connect');
+      if (!discordConnect) return;
+
+      discordConnect.addEventListener('click', () => {
+        // Placeholder flow: show info-strip when user confirms connection
+        const confirmConnect = confirm('Simular conexión a Discord en esta página de demostración?');
+        if (!confirmConnect) {
+          alert('Para conectar Discord correctamente se necesita una integración con OAuth o backend.');
+          return;
+        }
+        const strip = document.getElementById('discord-strip');
+        if (strip) {
+          strip.classList.add('visible');
+          strip.setAttribute('aria-hidden', 'false');
+        }
+        discordConnect.textContent = 'Conectado';
+        discordConnect.disabled = true;
+      });
     })();
 
     // ─── Fondo espacial animado (Canvas) ───
