@@ -29,6 +29,65 @@
       justify-content: center;
     }
 
+    /* ── PANTALLA DE BIENVENIDA (Bypass de Autoplay) ── */
+    #welcome-overlay {
+      position: fixed;
+      inset: 0;
+      background: #050505;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.6s cubic-bezier(0.25, 1, 0.5, 1), visibility 0.6s;
+      cursor: pointer;
+    }
+    
+    /* Cuando se desbloquea, se desvanece */
+    #welcome-overlay.fade-out {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    #welcome-rose {
+      width: 90px;
+      opacity: 0.5;
+      margin-bottom: 30px;
+      animation: pulseRose 2.5s ease-in-out infinite;
+      filter: drop-shadow(0 0 15px rgba(255,255,255,0.1));
+    }
+
+    #welcome-btn {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #fff;
+      padding: 16px 44px;
+      border-radius: 99px;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      transition: all 0.3s ease;
+    }
+
+    #welcome-overlay:hover #welcome-btn {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.3);
+      transform: translateY(-2px);
+      box-shadow: 0 15px 35px rgba(0,0,0,0.7);
+    }
+
+    #welcome-caption {
+      color: rgba(255,255,255,0.3);
+      font-size: 11px;
+      margin-top: 16px;
+      letter-spacing: 0.05em;
+    }
+
     /* ── Canvas Espacial ── */
     #space-canvas {
       position: fixed;
@@ -105,7 +164,6 @@
       transition: transform 0.4s cubic-bezier(.03,.98,.52,.99), box-shadow 0.4s ease;
     }
 
-    /* Brillo superior de la tarjeta */
     #card::before {
       content: '';
       position: absolute;
@@ -116,7 +174,6 @@
       pointer-events: none;
     }
 
-    /* ── Rosas dentro de la tarjeta ── */
     .card-rose {
       position: absolute;
       width: 120px;
@@ -300,11 +357,11 @@
       letter-spacing: 0.08em;
     }
 
-    /* ── Interfaz del Control de Música a la IZQUIERDA ── */
+    /* ── Interfaz del Control de Música ── */
     #music-container {
       position: fixed;
       top: 24px;
-      left: 24px; /* Ubicado fijamente a la izquierda */
+      left: 24px;
       display: flex;
       align-items: center;
       background: rgba(255, 255, 255, 0.06);
@@ -340,7 +397,6 @@
       transform: scale(1.08);
     }
 
-    /* Barra Deslizante de Volumen */
     #volume-slider {
       width: 0;
       opacity: 0;
@@ -355,16 +411,14 @@
       margin: 0;
     }
 
-    /* Despliegue al pasar el cursor (Hover) -> Se expande hacia la DERECHA */
     #music-container:hover #volume-slider {
       width: 85px;
       opacity: 1;
       pointer-events: auto;
-      margin-left: 10px; /* Separación a la derecha del botón */
+      margin-left: 10px;
       margin-right: 6px;
     }
 
-    /* Estilos del deslizador */
     #volume-slider::-webkit-slider-thumb {
       -webkit-appearance: none;
       appearance: none;
@@ -375,9 +429,6 @@
       cursor: pointer;
       box-shadow: 0 2px 6px rgba(0,0,0,0.5);
       transition: transform 0.1s ease;
-    }
-    #volume-slider::-webkit-slider-thumb:hover {
-      transform: scale(1.25);
     }
 
     #volume-slider::-moz-range-thumb {
@@ -390,11 +441,7 @@
       box-shadow: 0 2px 6px rgba(0,0,0,0.5);
       transition: transform 0.1s ease;
     }
-    #volume-slider::-moz-range-thumb:hover {
-      transform: scale(1.25);
-    }
 
-    /* ── Footer de la página ── */
     #footer {
       position: fixed;
       bottom: 16px;
@@ -424,9 +471,19 @@
       from { opacity: 0; transform: translateY(40px) scale(0.95); }
       to   { opacity: 1; transform: translateY(0) scale(1); }
     }
+    @keyframes pulseRose {
+      0%, 100% { transform: scale(1); opacity: 0.3; }
+      50% { transform: scale(1.06); opacity: 0.65; }
+    }
   </style>
 </head>
 <body>
+
+  <div id="welcome-overlay">
+    <img id="welcome-rose" src="https://media.discordapp.net/attachments/1502878615841406986/1508989850232160357/rose.png?ex=6a178bcf&is=6a163a4f&hm=d257c10940845ca80f4ecdd1d09336db3a34440bbd5b96c196433aa62ac88b31&=&format=webp&quality=lossless&width=341&height=300" alt="Rosa de Bienvenida" />
+    <button id="welcome-btn">Ingresar</button>
+    <p id="welcome-caption">Haz clic para verificar e iniciar música</p>
+  </div>
 
   <audio id="bg-music" loop>
     <source src="WUF.mp3" type="audio/mpeg">
@@ -529,18 +586,17 @@
   </div>
 
   <script>
-    // ─── Control de Audio Totalmente Sincronizado ───
+    // ─── Control de Audio Inteligente con Pantalla de Entrada ───
     (function () {
       const bgMusic = document.getElementById('bg-music');
       const musicBtn = document.getElementById('music-toggle');
       const volumeSlider = document.getElementById('volume-slider');
       const iconMuted = document.getElementById('icon-muted');
       const iconPlaying = document.getElementById('icon-playing');
+      const welcomeOverlay = document.getElementById('welcome-overlay');
 
-      // Configurar volumen inicial (0.5)
       bgMusic.volume = volumeSlider.value;
 
-      // Función que actualiza la interfaz basándose estrictamente en la realidad de la etiqueta <audio>
       function updateIcons() {
         if (!bgMusic.paused && bgMusic.volume > 0) {
           iconMuted.style.display = 'none';
@@ -551,30 +607,24 @@
         }
       }
 
-      // Escuchamos los eventos del propio reproductor de audio para evitar desincronizaciones
       bgMusic.addEventListener('play', updateIcons);
       bgMusic.addEventListener('pause', updateIcons);
       bgMusic.addEventListener('volumechange', updateIcons);
 
-      // Intento directo al cargar (Por si el navegador lo permite en casos raros)
-      bgMusic.play().catch(() => {
-        updateIcons(); // Si se bloquea, fuerza el icono de pausa/muteado de forma segura
+      // DESBLOQUEO CRUCIAL: Cuando hacen clic en la pantalla de bienvenida...
+      welcomeOverlay.addEventListener('click', () => {
+        // 1. Iniciamos la música de inmediato (ya está permitido por el navegador debido al clic)
+        bgMusic.play().catch(err => console.log("Error al reproducir:", err));
+        
+        // 2. Ocultamos la pantalla de bienvenida con estilo fade-out
+        welcomeOverlay.classList.add('fade-out');
+        
+        updateIcons();
       });
 
-      // Desbloqueador Inteligente: Al hacer CUALQUIER primer clic o pulsar una tecla en la página, suena al instante
-      function unlockAudio() {
-        if (bgMusic.paused) {
-          bgMusic.play().catch(err => console.log("Autoplay bloqueado:", err));
-        }
-        document.removeEventListener('click', unlockAudio);
-        document.removeEventListener('keydown', unlockAudio);
-      }
-      document.addEventListener('click', unlockAudio);
-      document.addEventListener('keydown', unlockAudio);
-
-      // Clic directo sobre el botón multimedia
+      // Control manual posterior en el botón de la esquina
       musicBtn.addEventListener('click', (e) => {
-        e.stopPropagation(); // Evita interferencias con el desbloqueador general
+        e.stopPropagation(); // Evita re-activar cosas del overlay
         if (!bgMusic.paused) {
           bgMusic.pause();
         } else {
@@ -582,12 +632,10 @@
         }
       });
 
-      // Control manual del deslizador de volumen
       volumeSlider.addEventListener('input', (e) => {
         bgMusic.volume = parseFloat(e.target.value);
       });
 
-      // Ejecución inicial de iconos al cargar
       updateIcons();
     })();
 
@@ -691,7 +739,7 @@
       draw();
     })();
 
-    // ─── Efecto 3D (Tilt) interactivo ───
+    // ─── Efecto 3D (Tilt) en la Tarjeta ───
     (function () {
       const wrap = document.getElementById('card-wrap');
       const card = document.getElementById('card');
