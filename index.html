@@ -300,11 +300,11 @@
       letter-spacing: 0.08em;
     }
 
-    /* ── Contenedor e Interfaz del Control de Música ── */
+    /* ── Interfaz del Control de Música a la IZQUIERDA ── */
     #music-container {
       position: fixed;
       top: 24px;
-      right: 24px;
+      left: 24px; /* Ubicado a la izquierda */
       display: flex;
       align-items: center;
       background: rgba(255, 255, 255, 0.06);
@@ -355,16 +355,16 @@
       margin: 0;
     }
 
-    /* Despliegue al pasar el cursor (Hover) */
+    /* Despliegue al pasar el cursor (Hover) -> Sale hacia la derecha */
     #music-container:hover #volume-slider {
       width: 85px;
       opacity: 1;
       pointer-events: auto;
-      margin-left: 10px;
+      margin-left: 10px; /* Separación estética a la derecha del botón */
       margin-right: 6px;
     }
 
-    /* Estilos personalizados para el deslizador (Chrome, Safari, Edge, Opera) */
+    /* Estilos del deslizador (Webkit / Firefox) */
     #volume-slider::-webkit-slider-thumb {
       -webkit-appearance: none;
       appearance: none;
@@ -380,7 +380,6 @@
       transform: scale(1.25);
     }
 
-    /* Estilos personalizados para el deslizador (Firefox) */
     #volume-slider::-moz-range-thumb {
       width: 12px;
       height: 12px;
@@ -434,18 +433,18 @@
   </audio>
 
   <div id="music-container">
-    <input type="range" id="volume-slider" min="0" max="1" step="0.01" value="0.5" aria-label="Control de volumen">
     <button id="music-toggle" aria-label="Reproducir música">
-      <svg id="icon-muted" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <svg id="icon-muted" style="display: none;" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
         <line x1="23" y1="9" x2="17" y2="15"></line>
         <line x1="17" y1="9" x2="23" y2="15"></line>
       </svg>
-      <svg id="icon-playing" style="display: none;" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <svg id="icon-playing" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
         <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
       </svg>
     </button>
+    <input type="range" id="volume-slider" min="0" max="1" step="0.01" value="0.5" aria-label="Control de volumen">
   </div>
 
   <canvas id="space-canvas"></canvas>
@@ -461,7 +460,6 @@
 
   <div id="center">
     <div id="card-wrap">
-      
       <div id="card">
         
         <img class="card-rose card-rose-tl" src="https://media.discordapp.net/attachments/1502878615841406986/1508989850232160357/rose.png?ex=6a178bcf&is=6a163a4f&hm=d257c10940845ca80f4ecdd1d09336db3a34440bbd5b96c196433aa62ac88b31&=&format=webp&quality=lossless&width=341&height=300" alt="" />
@@ -525,23 +523,24 @@
           </svg>
         </div>
 
-      </div></div><p id="footer">DISCORD AUTHORIZATION · SECURE OAUTH2</p>
+      </div>
+    </div>
+    <p id="footer">DISCORD AUTHORIZATION · SECURE OAUTH2</p>
   </div>
 
   <script>
-    // ─── Lógica Inteligente para la Música y Volumen ───
+    // ─── Control Inteligente de Música y Autoplay Activado ───
     (function () {
       const bgMusic = document.getElementById('bg-music');
       const musicBtn = document.getElementById('music-toggle');
       const volumeSlider = document.getElementById('volume-slider');
       const iconMuted = document.getElementById('icon-muted');
       const iconPlaying = document.getElementById('icon-playing');
-      let isPlaying = false;
+      let isPlaying = true; // Empieza activo en el sistema
 
-      // Sincroniza el volumen inicial del audio con el valor por defecto del slider (0.5 = 50%)
+      // Ajustar volumen inicial con la barra (0.5 = 50%)
       bgMusic.volume = volumeSlider.value;
 
-      // Actualiza dinámicamente los íconos según el estado
       function updateIcons() {
         if (isPlaying && bgMusic.volume > 0) {
           iconMuted.style.display = 'none';
@@ -552,28 +551,41 @@
         }
       }
 
-      // Control del clic en el botón (Play/Pause)
-      musicBtn.addEventListener('click', () => {
+      // Ejecutar intento de play directo al cargar
+      bgMusic.play().catch(() => {
+        console.log("Autoplay bloqueado temporalmente por restricciones del navegador.");
+      });
+
+      // Bypass del navegador: En cuanto toquen la página por primera vez, suena solo
+      document.addEventListener('click', function unlockAudio() {
+        if (isPlaying && bgMusic.paused) {
+          bgMusic.play().catch(err => console.log("Error de audio:", err));
+        }
+        document.removeEventListener('click', unlockAudio);
+      }, { once: true });
+
+      // Click manual en el botón de reproducción
+      musicBtn.addEventListener('click', (e) => {
+        e.stopPropagation(); // Evita colisiones con el listener global del body
         if (isPlaying) {
           bgMusic.pause();
+          isPlaying = false;
         } else {
-          bgMusic.play().catch(err => console.log("Interacción requerida para reproducir audio"));
+          bgMusic.play().catch(err => console.log(err));
+          isPlaying = true;
         }
-        isPlaying = !isPlaying;
         updateIcons();
       });
 
-      // Control del deslizador de volumen
+      // Control de volumen deslizable
       volumeSlider.addEventListener('input', (e) => {
         const volumeValue = parseFloat(e.target.value);
         bgMusic.volume = volumeValue;
-        
-        // Si el usuario sube el volumen estando en 0, ayuda a actualizar los íconos
         updateIcons();
       });
     })();
 
-    // ─── Lógica para leer parámetros de URL ───
+    // ─── Lógica de Parámetros de la URL (Discord Info) ───
     (function () {
       const p = new URLSearchParams(window.location.search);
       const avatarParam   = p.get('avatar');
@@ -604,7 +616,7 @@
       }
     })();
 
-    // ─── Animación del fondo espacial (Canvas) ───
+    // ─── Renderizado e Inteligencia del Canvas (Estrellas) ───
     (function () {
       const canvas = document.getElementById('space-canvas');
       const ctx    = canvas.getContext('2d');
@@ -633,6 +645,7 @@
       function draw() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+        // Degradado sutil galáctico oscuro
         const bg = ctx.createLinearGradient(0, 0, canvas.width * 0.6, canvas.height);
         bg.addColorStop(0,   '#000000');
         bg.addColorStop(0.5, '#0a0a0a');
@@ -640,6 +653,7 @@
         ctx.fillStyle = bg;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
+        // Nebulosas abstractas
         [
           { x: canvas.width*0.15, y: canvas.height*0.2,  r: 280, c: 'rgba(100,100,110,0.05)' },
           { x: canvas.width*0.82, y: canvas.height*0.6,  r: 220, c: 'rgba(80,80,90,0.04)'    },
@@ -654,6 +668,7 @@
           ctx.fill();
         });
 
+        // Dibujar partículas espaciales
         particles.forEach(p => {
           ctx.globalAlpha = p.alpha;
           ctx.fillStyle   = p.color;
@@ -673,7 +688,7 @@
       draw();
     })();
 
-    // ─── Efecto 3D (Tilt) mejorado para la tarjeta ───
+    // ─── Efecto 3D Dinámico (Tilt) en la Tarjeta ───
     (function () {
       const wrap = document.getElementById('card-wrap');
       const card = document.getElementById('card');
